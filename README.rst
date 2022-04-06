@@ -41,7 +41,7 @@ Input
 
 -  ``dataset``: ``'SOHO_CELIAS-PM_30S'``, ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``, ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``, ``'SOHO_ERNE-LED_L2-1MIN'``, or ``'SOHO_ERNE-HED_L2-1MIN'``. See above for explanation.
 -  ``startdate``, ``enddate``: datetime object or "standard" datetime string
--  ``resample``: Pandas frequency (e.g., ``'1min'`` or ``'1h'``), or ``None``, optional. Frequency to which the original data (~24 seconds) is resamepled. By default ``'1min'``.
+-  ``resample``: Pandas frequency (e.g., ``'1min'`` or ``'1h'``), or ``None``, optional. Frequency to which the original data is resamepled. By default ``None``.
 
 Return
 ~~~~~~
