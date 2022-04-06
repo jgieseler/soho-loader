@@ -3,16 +3,11 @@ soho-loader
 
 Python data loader for SOHO/EPHIN instrument. At the moment provides released data obtained by SunPy through CDF files from CDAWeb for the following datasets:
 
-- 'SOHO_CELIAS-PM_30S': SOHO CELIAS-PM 30 second data
-    https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-PM_30S
-- 'SOHO_CELIAS-SEM_15S': SOHO CELIAS-SEM 15 second data
-    https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-SEM_15S
-- 'SOHO_COSTEP-EPHIN_L3I-1MIN': SOHO COSTEP-EPHIN Level3 intensity 1 minute data
-    https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_COSTEP-EPHIN_L3I-1MIN
-- 'SOHO_ERNE-LED_L2-1MIN': SOHO ERNE-LED Level2 1 minute data - VERY OFTEN NO DATA!
-    https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_ERNE-LED_L2-1MIN
-- 'SOHO_ERNE-HED_L2-1MIN': SOHO ERNE-HED Level2 1 minute data
-    https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_ERNE-HED_L2-1MIN
+-   ``'SOHO_CELIAS-PM_30S'``: SOHO CELIAS-PM 30 second data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-PM_30S>`_)
+-   ``'SOHO_CELIAS-SEM_15S'``: SOHO CELIAS-SEM 15 second data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-SEM_15S>`_)    
+-   ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``: SOHO COSTEP-EPHIN Level3 intensity 1 minute data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_COSTEP-EPHIN_L3I-1MIN>`_)
+-   ``'SOHO_ERNE-LED_L2-1MIN'``: SOHO ERNE-LED Level2 1 minute data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_ERNE-LED_L2-1MIN>`_)
+-   ``'SOHO_ERNE-HED_L2-1MIN'``: SOHO ERNE-HED Level2 1 minute data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_ERNE-HED_L2-1MIN>`_)
 
 Installation
 ------------
@@ -36,11 +31,10 @@ returns Pandas dataframe(s) of the measurements.
    from soho_loader import soho_load
    import datetime as dt
 
-   df = load(dataset="WI_SFPD_3DP",
-                     startdate=dt.datetime(2021, 4, 16),
-                     enddate="2021/04/20",
-                     resample="1min",
-                     multi_index=True)
+   df = soho_load(dataset="SOHO_ERNE-HED_L2-1MIN",
+                  startdate=dt.datetime(2021, 4, 16),
+                  enddate="2021/04/20",
+                  resample="1min")
 
 Input
 ~~~~~
@@ -52,7 +46,7 @@ Input
 Return
 ~~~~~~
 
--  Pandas dataframe. See links above for the different datasets for a description of the dataframe columns.
+-  Pandas dataframe. See info links above for the different datasets for a description of the dataframe columns.
 
 
 Data folder structure
