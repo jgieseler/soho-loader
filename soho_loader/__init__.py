@@ -51,7 +51,7 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None):
         Datetime object (e.g., dt.date(2021,12,31) or dt.datetime(2021,4,15)) or "standard"
         datetime string (e.g., "2021/04/15") (enddate must always be later than startdate)
     path : {str}, optional
-        Local path for storing downloaded data; not included as of now, by default None
+        Local path for storing downloaded data, by default None
     resample : {str}, optional
         resample frequency in format understandable by Pandas, e.g. '1min', by default None
 
@@ -64,7 +64,7 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None):
     cda_dataset = a.cdaweb.Dataset(dataset)
     try:
         result = Fido.search(trange, cda_dataset)
-        downloaded_files = Fido.fetch(result)  # use Fido.fetch(result, path='/ThisIs/MyPath/to/Data/{file}') to use a specific local folder for saving data files
+        downloaded_files = Fido.fetch(result, path=path)  # use Fido.fetch(result, path='/ThisIs/MyPath/to/Data/{file}') to use a specific local folder for saving data files
         downloaded_files.sort()
         data = TimeSeries(downloaded_files, concatenate=True)
         df = data.to_dataframe()
