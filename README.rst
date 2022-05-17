@@ -34,6 +34,7 @@ returns Pandas dataframe(s) of the measurements.
    df = soho_load(dataset="SOHO_ERNE-HED_L2-1MIN",
                   startdate=dt.datetime(2021, 4, 16),
                   enddate="2021/04/20",
+                  path=None,
                   resample="1min")
 
 Input
@@ -41,6 +42,7 @@ Input
 
 -  ``dataset``: ``'SOHO_CELIAS-PM_30S'``, ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``, ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``, ``'SOHO_ERNE-LED_L2-1MIN'``, or ``'SOHO_ERNE-HED_L2-1MIN'``. See above for explanation.
 -  ``startdate``, ``enddate``: datetime object or "standard" datetime string
+-  ``path``: String, optional. Local path for storing downloaded data, e.g. ``path='data/wind/3dp/'``. By default `None`. Default setting saves data according to `sunpy's Fido standards <https://docs.sunpy.org/en/stable/guide/acquiring_data/fido.html#downloading-data>`_.
 -  ``resample``: Pandas frequency (e.g., ``'1min'`` or ``'1h'``), or ``None``, optional. Frequency to which the original data is resamepled. By default ``None``.
 
 Return
