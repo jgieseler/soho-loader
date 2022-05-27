@@ -1,7 +1,7 @@
 soho-loader
 ===============
 
-Python data loader for SOHO/EPHIN instrument. At the moment provides released data obtained by SunPy through CDF files from CDAWeb for the following datasets:
+Python data loader for SOHO charged particle instruments. At the moment provides released data obtained by SunPy through CDF files from CDAWeb for the following datasets:
 
 -   ``'SOHO_CELIAS-PM_30S'``: SOHO CELIAS-PM 30 second data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-PM_30S>`_)
 -   ``'SOHO_CELIAS-SEM_15S'``: SOHO CELIAS-SEM 15 second data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-SEM_15S>`_)    
