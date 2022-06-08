@@ -68,6 +68,13 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None):
         downloaded_files.sort()
         data = TimeSeries(downloaded_files, concatenate=True)
         df = data.to_dataframe()
+
+        # remove this (i.e. following lines) when sunpy's read_cdf is updated,
+        # and FILLVAL will be replaced directly, see
+        # https://github.com/sunpy/sunpy/issues/5908
+        df = df.replace(-1e+31, np.nan)  # for all fluxes
+        df = df.replace(-2147483648, np.nan)  # for ERNE count rates
+
         if isinstance(resample, str):
             df = resample_df(df, resample)
     except RuntimeError:
