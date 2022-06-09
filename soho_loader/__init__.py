@@ -29,7 +29,7 @@ def resample_df(df, resample):
     return df
 
 
-def soho_load(dataset, startdate, enddate, path=None, resample=None):
+def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timestamp=None):
     """
     Downloads CDF files via SunPy/Fido from CDAWeb for CELIAS, EPHIN, ERNE onboard SOHO
 
@@ -54,6 +54,8 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None):
         Local path for storing downloaded data, by default None
     resample : {str}, optional
         resample frequency in format understandable by Pandas, e.g. '1min', by default None
+    pos_timestamp : {str}, optional
+        change the position of the timestamp: 'center' or 'start' of the accumulation interval, by default None
 
     Returns
     -------
@@ -74,6 +76,20 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None):
         # https://github.com/sunpy/sunpy/issues/5908
         df = df.replace(-1e+31, np.nan)  # for all fluxes
         df = df.replace(-2147483648, np.nan)  # for ERNE count rates
+
+        # careful!
+        # adjusting the position of the timestamp manually.
+        # requires knowledge of the original time resolution and timestamp position!
+        if pos_timestamp == 'center':
+            if (dataset.upper() == 'SOHO_ERNE-HED_L2-1MIN' or
+                    dataset.upper() == 'SOHO_ERNE-LED_L2-1MIN' or
+                    dataset.upper() == 'SOHO_COSTEP-EPHIN_L3I-1MIN'):
+                df.index = df.index+pd.Timedelta('30s')
+            if dataset.upper() == 'SOHO_CELIAS-PM_30S':
+                df.index = df.index+pd.Timedelta('15s')
+        if pos_timestamp == 'start':
+            if dataset.upper() == 'SOHO_CELIAS-SEM_15S':
+                df.index = df.index-pd.Timedelta('7.5s')
 
         if isinstance(resample, str):
             df = resample_df(df, resample)
