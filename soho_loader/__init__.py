@@ -29,6 +29,51 @@ def resample_df(df, resample):
     return df
 
 
+def _get_metadata(dataset, path_to_cdf):
+    """
+    Get meta data from single cdf file
+    So far only manually for 'SOHO_ERNE-HED_L2-1MIN' and 'SOHO_ERNE-LED_L2-1MIN'
+    """
+    metadata = []
+    cdf = cdflib.CDF(path_to_cdf)
+    if dataset=='SOHO_ERNE-HED_L2-1MIN' or dataset=='SOHO_ERNE-LED_L2-1MIN':
+        if dataset=='SOHO_ERNE-HED_L2-1MIN':
+            m = 'H'
+        if dataset=='SOHO_ERNE-LED_L2-1MIN':
+            m = 'L'
+        metadata = {'He_E_label': cdf.varget('He_E_label')[0],
+                    'He_energy': cdf.varget('He_energy'),
+                    'He_energy_delta': cdf.varget('He_energy_delta'),
+                    f'A{m}_LABL': cdf.varattsget(f'A{m}')['LABLAXIS'],
+                    f'A{m}_UNITS': cdf.varattsget(f'A{m}')['UNITS'],
+                    f'A{m}_FILLVAL': cdf.varattsget(f'A{m}')['FILLVAL'],
+                    'P_E_label': cdf.varget('P_E_label')[0],
+                    'P_energy': cdf.varget('P_energy'),
+                    'P_energy_delta': cdf.varget('P_energy_delta'),
+                    f'P{m}_LABL': cdf.varattsget(f'P{m}')['LABLAXIS'],
+                    f'P{m}_UNITS': cdf.varattsget(f'P{m}')['UNITS'],
+                    f'P{m}_FILLVAL': cdf.varattsget(f'P{m}')['FILLVAL'],
+                    }
+
+        channels_dict_df_He = pd.DataFrame(cdf.varget('He_E_label')[0], columns=['ch_strings'])
+        channels_dict_df_He['lower_E'] = cdf.varget("He_energy")-cdf.varget("He_energy_delta")
+        channels_dict_df_He['upper_E'] = cdf.varget("He_energy")+cdf.varget("He_energy_delta")
+        channels_dict_df_He['DE'] = cdf.varget("He_energy_delta")
+        # channels_dict_df_He['mean_E'] = np.sqrt(channels_dict_df_He['upper_E'] * channels_dict_df_He['lower_E'])
+        channels_dict_df_He['mean_E'] = cdf.varget("He_energy")
+
+        channels_dict_df_p = pd.DataFrame(cdf.varget('P_E_label')[0], columns=['ch_strings'])
+        channels_dict_df_p['lower_E'] = cdf.varget("P_energy")-cdf.varget("P_energy_delta")
+        channels_dict_df_p['upper_E'] = cdf.varget("P_energy")+cdf.varget("P_energy_delta")
+        channels_dict_df_p['DE'] = cdf.varget("P_energy_delta")
+        # channels_dict_df_p['mean_E'] = np.sqrt(channels_dict_df_p['upper_E'] * channels_dict_df_p['lower_E'])
+        channels_dict_df_p['mean_E'] = cdf.varget("P_energy")
+
+        metadata.update({'channels_dict_df_He': channels_dict_df_He})
+        metadata.update({'channels_dict_df_p': channels_dict_df_p})
+    return metadata
+
+
 def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timestamp=None):
     """
     Downloads CDF files via SunPy/Fido from CDAWeb for CELIAS, EPHIN, ERNE onboard SOHO
@@ -61,6 +106,8 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
     -------
     df : {Pandas dataframe}
         See links above for the different datasets for a description of the dataframe columns
+    metadata : {dict}
+        Dictionary containing different metadata, e.g., energy channels
     """
     trange = a.Time(startdate, enddate)
     cda_dataset = a.cdaweb.Dataset(dataset)
@@ -70,6 +117,8 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
         downloaded_files.sort()
         data = TimeSeries(downloaded_files, concatenate=True)
         df = data.to_dataframe()
+
+        metadata = _get_metadata(dataset, downloaded_files[0])
 
         # remove this (i.e. following lines) when sunpy's read_cdf is updated,
         # and FILLVAL will be replaced directly, see
@@ -97,4 +146,4 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
         print(f'Unable to obtain "{dataset}" data!')
         downloaded_files = []
         df = []
-    return df
+    return df, metadata

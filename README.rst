@@ -33,11 +33,12 @@ returns Pandas dataframe(s) of the measurements.
    from soho_loader import soho_load
    import datetime as dt
 
-   df = soho_load(dataset="SOHO_ERNE-HED_L2-1MIN",
-                  startdate=dt.datetime(2021, 4, 16),
-                  enddate="2021/04/20",
-                  path=None,
-                  resample="1min")
+   df, meta = soho_load(dataset="SOHO_ERNE-HED_L2-1MIN",
+                        startdate=dt.datetime(2021, 4, 16),
+                        enddate="2021/04/20",
+                        path=None,
+                        resample="1min",
+                        pos_timestamp=None)
 
 Input
 ~~~~~
@@ -51,7 +52,7 @@ Input
 Return
 ~~~~~~
 
--  Pandas dataframe. See info links above for the different datasets for a description of the dataframe columns.
+-  Pandas dataframe and dictionary of metadata (e.g., energy channels). See info links above for the different datasets for a description of the dataframe columns.
 
 
 Data folder structure
