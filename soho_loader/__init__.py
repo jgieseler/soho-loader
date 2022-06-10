@@ -153,4 +153,5 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
         print(f'Unable to obtain "{dataset}" data!')
         downloaded_files = []
         df = []
+        metadata = []
     return df, metadata
