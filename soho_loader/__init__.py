@@ -16,16 +16,20 @@ from sunpy.net import attrs as a
 from sunpy.timeseries import TimeSeries
 
 
-def resample_df(df, resample):
+def resample_df(df, resample, pos_timestamp='center'):
     """
     Resample Pandas Dataframe
     """
     try:
-        # _ = pd.Timedelta(resample)  # test if resample is proper Pandas frequency
         df = df.resample(resample).mean()
-        df.index = df.index + pd.tseries.frequencies.to_offset(pd.Timedelta(resample)/2)
+        if pos_timestamp == 'start':
+            df.index = df.index
+        else:
+            df.index = df.index + pd.tseries.frequencies.to_offset(pd.Timedelta(resample)/2)
+        # if pos_timestamp == 'stop' or pos_timestamp == 'end':
+        #     df.index = df.index + pd.tseries.frequencies.to_offset(pd.Timedelta(resample))
     except ValueError:
-        raise Warning(f"Your 'resample' option of [{resample}] doesn't seem to be a proper Pandas frequency!")
+        raise ValueError(f"Your 'resample' option of [{resample}] doesn't seem to be a proper Pandas frequency!")
     return df
 
 
@@ -109,6 +113,9 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
     metadata : {dict}
         Dictionary containing different metadata, e.g., energy channels
     """
+    if not (pos_timestamp=='center' or pos_timestamp=='start' or pos_timestamp is None):
+        raise ValueError(f'"pos_timestamp" must be either None, "center", or "start"!')
+
     trange = a.Time(startdate, enddate)
     cda_dataset = a.cdaweb.Dataset(dataset)
     try:
@@ -141,7 +148,7 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
                 df.index = df.index-pd.Timedelta('7.5s')
 
         if isinstance(resample, str):
-            df = resample_df(df, resample)
+            df = resample_df(df, resample, pos_timestamp=pos_timestamp)
     except RuntimeError:
         print(f'Unable to obtain "{dataset}" data!')
         downloaded_files = []
