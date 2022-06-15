@@ -78,7 +78,7 @@ def _get_metadata(dataset, path_to_cdf):
     return metadata
 
 
-def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timestamp=None):
+def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timestamp=None, max_conn=5):
     """
     Downloads CDF files via SunPy/Fido from CDAWeb for CELIAS, EPHIN, ERNE onboard SOHO
 
@@ -120,7 +120,7 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
     cda_dataset = a.cdaweb.Dataset(dataset)
     try:
         result = Fido.search(trange, cda_dataset)
-        downloaded_files = Fido.fetch(result, path=path)  # use Fido.fetch(result, path='/ThisIs/MyPath/to/Data/{file}') to use a specific local folder for saving data files
+        downloaded_files = Fido.fetch(result, path=path, max_conn=max_conn)  # use Fido.fetch(result, path='/ThisIs/MyPath/to/Data/{file}') to use a specific local folder for saving data files
         downloaded_files.sort()
         data = TimeSeries(downloaded_files, concatenate=True)
         df = data.to_dataframe()
