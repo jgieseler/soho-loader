@@ -174,10 +174,8 @@ def calc_av_en_flux_ERNE(df, channels_dict_df, avg_channels, species='p', sensor
     t_flux = 0
     for bins in range(avg_channels[0], avg_channels[-1]+1):
         if species.lower() in ['he', 'a', 'alpha']:
-            print('alpha action!')
             t_flux = t_flux + df[f'A{sensor.upper()[0]}_{bins}'] * channels_dict_df.loc[bins]['DE']
         elif species.lower() in ['p', 'i', 'h']:
-            print('proton power!')
             t_flux = t_flux + df[f'P{sensor.upper()[0]}_{bins}'] * channels_dict_df.loc[bins]['DE']
     avg_flux = t_flux/DE_total
 

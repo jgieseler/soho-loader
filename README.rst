@@ -62,6 +62,34 @@ Data folder structure
 If no `path` argument is provided, all data files are automatically saved in a SunPy subfolder of the current user home directory.
 
 
+Combine intensitiy for multiple energy channels (ERNE only)
+-----------------------------------------------------------
+
+For ERNE measurements, it's possible to combine the intensities of multiple adjacent energy channels with the function ``calc_av_en_flux_ERNE``. It returns a Pandas Dataframe with the arithmetic mean of all intensities and a string providing the corresponding energy range. The following example demonstrates how to build an average channel of ERNE proton energy channels 2 to 8. 
+
+
+.. code:: python
+
+    from soho_loader import soho_load, calc_av_en_flux_ERNE
+    
+    # first, load original data:
+    df, meta = soho_load(dataset="SOHO_ERNE-HED_L2-1MIN",
+                         startdate="2021/04/16",
+                         enddate="2021/04/20",
+                         path=None,
+                         resample="1min",
+                         pos_timestamp=None)
+
+    # define energy channel range that should be combined:
+    combine_channels = [2, 8]
+    erne_avg_int, erne_avg_chstring = calc_av_en_flux_ERNE(df, 
+                                                           meta['channels_dict_df_p'],
+                                                           combine_channels,
+                                                           species='p',
+                                                           sensor='HET')
+    print(erne_avg_chstring)
+
+
 License
 -------
 
