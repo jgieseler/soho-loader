@@ -102,9 +102,11 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
     path : {str}, optional
         Local path for storing downloaded data, by default None
     resample : {str}, optional
-        resample frequency in format understandable by Pandas, e.g. '1min', by default None
+        Resample frequency in format understandable by Pandas, e.g. '1min', by default None
     pos_timestamp : {str}, optional
-        change the position of the timestamp: 'center' or 'start' of the accumulation interval, by default None
+        Change the position of the timestamp: 'center' or 'start' of the accumulation interval, by default None
+    max_conn : {int}, optional
+        The number of parallel download slots used by Fido.fetch, by default 5
 
     Returns
     -------
@@ -155,3 +157,36 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
         df = []
         metadata = []
     return df, metadata
+
+
+def calc_av_en_flux_ERNE(df, channels_dict_df, avg_channels, species='p', sensor='HET'):
+    """
+    avg_channels : list of int, optional
+        averaging channels m to n if [m, n] is provided (both integers), by default None
+    """
+    # calculation of total delta-E for averaging multiple channels:
+    if len(avg_channels) > 1:
+        DE_total = channels_dict_df.loc[avg_channels[0]:avg_channels[-1]]['DE'].sum()
+    else:
+        DE_total = channels_dict_df.loc[avg_channels[0]]['DE']
+
+    # averaging of intensities:
+    t_flux = 0
+    for bins in range(avg_channels[0], avg_channels[-1]+1):
+        if species.lower() in ['he', 'a', 'alpha']:
+            print('alpha action!')
+            t_flux = t_flux + df[f'A{sensor.upper()[0]}_{bins}'] * channels_dict_df.loc[bins]['DE']
+        elif species.lower() in ['p', 'i', 'h']:
+            print('proton power!')
+            t_flux = t_flux + df[f'P{sensor.upper()[0]}_{bins}'] * channels_dict_df.loc[bins]['DE']
+    avg_flux = t_flux/DE_total
+
+    # string lower energy
+    energy_low = channels_dict_df.lower_E[avg_channels[0]]
+
+    # string upper energy without .0 decimal but with ' keV' ending
+    energy_up = channels_dict_df.upper_E[avg_channels[-1]]
+
+    new_ch_string = f'{energy_low} - {energy_up} MeV'
+
+    return avg_flux, new_ch_string
