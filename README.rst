@@ -12,7 +12,7 @@ Python data loader for SOHO charged particle instruments. At the moment provides
 
 Disclaimer
 ----------
-This software is provided "as is", with not guarantee. It is no official data source, and not officially endorsed by the corresponding instrument teams. Please always refer to the instrument descriptions before using the data!
+This software is provided "as is", with no guarantee. It is no official data source, and not officially endorsed by the corresponding instrument teams. Please always refer to the instrument descriptions before using the data!
 
 
 Installation
