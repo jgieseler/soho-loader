@@ -10,6 +10,7 @@ import cdflib
 import datetime as dt
 import numpy as np
 import pandas as pd
+import sunpy
 
 from sunpy.net import Fido
 from sunpy.net import attrs as a
