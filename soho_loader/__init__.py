@@ -133,7 +133,7 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
         downloaded_files = filelist
 
         for i, f in enumerate(filelist):
-            if os.path.getsize(f) == 0:
+            if os.path.exists(f) and os.path.getsize(f) == 0:
                 os.remove(f)
             if not os.path.exists(f):
                 downloaded_file = Fido.fetch(result[0][i], path=path, max_conn=max_conn)
