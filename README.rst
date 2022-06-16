@@ -45,7 +45,7 @@ returns Pandas dataframe(s) of the measurements.
                         path=None,
                         resample="1min",
                         pos_timestamp=None
-                        maxmax_conn=5)
+                        max_conn=5)
 
 Input
 ~~~~~
