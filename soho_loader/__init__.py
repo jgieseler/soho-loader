@@ -122,8 +122,20 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
     cda_dataset = a.cdaweb.Dataset(dataset)
     try:
         result = Fido.search(trange, cda_dataset)
-        downloaded_files = Fido.fetch(result, path=path, max_conn=max_conn)  # use Fido.fetch(result, path='/ThisIs/MyPath/to/Data/{file}') to use a specific local folder for saving data files
-        downloaded_files.sort()
+        filelist = [i[0].split('/')[-1] for i in result.show('URL')[0]]
+        filelist.sort()
+        if path is None:
+            filelist = [sunpy.config.get('downloads', 'download_dir') + os.sep + file for file in filelist]
+        elif type(path) is str:
+            filelist = [path + os.sep + f for f in filelist]
+        downloaded_files = filelist
+
+        for i, f in enumerate(filelist):
+            if not os.path.exists(f):
+                downloaded_file = Fido.fetch(result[i], path=path, max_conn=max_conn)
+
+        # downloaded_files = Fido.fetch(result, path=path, max_conn=max_conn)  # use Fido.fetch(result, path='/ThisIs/MyPath/to/Data/{file}') to use a specific local folder for saving data files
+        # downloaded_files.sort()
         data = TimeSeries(downloaded_files, concatenate=True)
         df = data.to_dataframe()
 
