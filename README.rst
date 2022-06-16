@@ -44,7 +44,8 @@ returns Pandas dataframe(s) of the measurements.
                         enddate="2021/04/20",
                         path=None,
                         resample="1min",
-                        pos_timestamp=None)
+                        pos_timestamp=None
+                        maxmax_conn=5)
 
 Input
 ~~~~~
