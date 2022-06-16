@@ -134,7 +134,7 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
 
         for i, f in enumerate(filelist):
             if not os.path.exists(f):
-                downloaded_file = Fido.fetch(result[i], path=path, max_conn=max_conn)
+                downloaded_file = Fido.fetch(result[0][i], path=path, max_conn=max_conn)
 
         # downloaded_files = Fido.fetch(result, path=path, max_conn=max_conn)  # use Fido.fetch(result, path='/ThisIs/MyPath/to/Data/{file}') to use a specific local folder for saving data files
         # downloaded_files.sort()
