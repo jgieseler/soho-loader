@@ -259,7 +259,7 @@ def soho_ephin_download(date, path=None):
 
 
 def soho_ephin_loader(startdate, enddate, resample=None, path=None, all_columns=False, pos_timestamp=None):
-    """Loads STEREO/SEPT data and returns it as Pandas dataframe together with a dictionary providing the energy ranges per channel
+    """Loads SOHO/EPHIN data and returns it as Pandas dataframe together with a dictionary providing the energy ranges per channel
 
     Parameters
     ----------
@@ -354,15 +354,23 @@ def soho_ephin_loader(startdate, enddate, resample=None, path=None, all_columns=
             if int(binaries[-2]):
                 ringoff[q] = 1
 
-        cs_e1300 = '2.64-6.18'
-        cs_p25 = '25-41 MeV'
-        cs_he25 = '25-41 MeV/N'
+        cs_e300 = '0.67 - 3.0 MeV'
+        cs_e1300 = '2.64 - 6.18 MeV'
+        cs_p25 = '25 - 41 MeV'
+        cs_he25 = '25 - 41 MeV/N'
         if max(fmodes)==1:
-            cs_e1300 = "2.64 - 10.40 MeV"
-            cs_p25 = '25-53 MeV'
-            cs_he25 = '25 - 53 MeV/N'
+            cs_e1300 = "2.64 - 10.4 MeV"
+            cs_p25 = '25 - 53 MeV'
+            cs_he25 = '25 - 53 MeV/n'
         if max(fmodes)==2:
             warnings.warn('Careful: EPHIN ring off!')
+
+        # failure mode D since 4 Oct 2017:
+        if enddate >= dt.date(2017, 10, 4):
+            cs_e300 = 'deactivated bc. of failure mode D'
+            cs_e1300 = "0.67 - 10.4 MeV"
+            if startdate <= dt.date(2017, 10, 4):
+                warnings.warn('EPHIN instrument status (i.e., electron energy channels) changed during selected period (on Oct 4, 2017)!')
 
         # careful!
         # adjusting the position of the timestamp manually.
@@ -376,19 +384,19 @@ def soho_ephin_loader(startdate, enddate, resample=None, path=None, all_columns=
     else:
         df = []
 
-    meta = {'e150': '0.25-0.7 MeV',
-            'e300': '0.67-3.0 MeV',
-            'e1300': cs_e1300,
-            'e3000': '4.80 - 10.4',
-            'p4': '4.3-7.8',
-            'p8': '7.8-25',
-            'p25': cs_p25,
-            'p41': '41-53 MeV',
-            'he4': '4.3 - 7.8 MeV/N',
-            'he8': '7.8 - 25.0 MeV/N',
-            'he25': cs_he25,
-            'he41': '40.9 - 53.0 MeV/N',
-            'inte': '>25 MeV integral'}
+    meta = {'E150': '0.25 - 0.7 MeV',
+            'E300': cs_e300,
+            'E1300': cs_e1300,
+            'E3000': '4.80 - 10.4 MeV',
+            'P4': '4.3 - 7.8 MeV',
+            'P8': '7.8 - 25 MeV',
+            'P25': cs_p25,
+            'P41': '41 - 53 MeV',
+            'H4': '4.3 - 7.8 MeV/n',
+            'H8': '7.8 - 25.0 MeV/n',
+            'H25': cs_he25,
+            'H41': '40.9 - 53.0 MeV/n',
+            'INT': '>25 MeV integral'}
 
     return df, meta
 
@@ -437,220 +445,3 @@ def doy2dt(year, doy):
 #         downloaded_files = Fido.fetch(result[0][np.where(ftypes=='rl2')], path=path)
 
 #     return downloaded_files
-
-
-# Following function replace by soho_ephin_loader()
-def ephin_rl2_loader(startdate, enddate, backsub=[0, 0], path=None):
-    """
-    load EPHIN level2 fluxes from rl2 files
-    """
-    doy1 = int(startdate.strftime('%j'))
-    doy2 = int(enddate.strftime('%j'))
-    year = startdate.year
-
-    # if doy2 <= 0:
-    #     doy2=doy1
-    for i in range(doy1, doy2+1):
-        if year<2000:
-            pre="eph"
-            yy=year-1900
-        else:
-            pre="epi"
-            yy=year-2000
-        name="%s%02d%03d" %(pre, yy, i)
-
-        # data_=np.loadtxt("/data/missions/soho/costep/level2/rl2/%4d/%s.rl2" %(year,name))
-        data_=np.loadtxt(path+os.sep+f"{name}.rl2")
-
-        if i == doy1:
-            data = data_
-        else:
-            data = np.row_stack((data, data_))
-
-    year=data[:, 0]
-    doy=data[:, 1]
-    msec=data[:, 2]
-    ddoy = doy + (msec/1000.)/86400.
-
-    e150=data[:, 6]  # 0.25-0.7 MeV
-    e300=data[:, 7]  # 0.67-3.0 MeV
-    e1300=data[:, 8]  # 2.64-6.18 MeV  or 2.64-10.4 since failure mode E (e1300 and e3000 combined)
-    e3000=data[:, 9]  # 4.80 - 10.4 MeV or Nan (since failure mode E)
-    p4=data[:, 10]  # 4.3-7.8
-    p8=data[:, 11]  # 7.8-25
-    p25=data[:, 12]  # 25-41 MeV or 25-53 MeV since failure mode E (p25 and p41 combined)
-    p41=data[:, 13]  # 41-53 MeV  or Nan (since failure mode E)
-    he4=data[:, 14]  # 4.3 - 7.8 MeV/N
-    he8=data[:, 15]  # 7.8 - 25.0 MeV/N
-    he25=data[:, 16]  # 25.0 - 40.9 MeV/N or 25-53 MeV/N since failure mode E (he25 and he41 combined)
-    he41=data[:, 17]  # 40.9 - 53.0 MeV/N or Nan (since failure mode E)
-    inte=data[:, 18]
-    status=data[:, 47]
-
-    fmodes=np.zeros(len(status))
-    for q in range(len(status)):
-        binaries='{0:08b}'.format(int(status[q]))
-        if int(binaries[-1])==1:
-            if int(binaries[-3])==1:
-                fmodes[q]=1
-            else:
-                fmodes[q]=2
-
-    ringoff=np.zeros(len(status))
-    for q in range(len(status)):
-        binaries='{0:08b}'.format(int(status[q]))
-        if int(binaries[-2]):
-            ringoff[q]=1
-
-    cs_e1300 = '2.64-6.18'
-    cs_p25 = '25-41 MeV'
-    cs_he25 = '25-41 MeV/N'
-    if max(fmodes)==1:
-        cs_e1300 = "2.64 - 10.40 MeV"
-        cs_p25 = '25-53 MeV'
-        cs_he25 = '25 - 53 MeV/N'
-    if max(fmodes)==2:
-        warnings.warn('Careful: EPHIN ring off!')
-
-    # if av > 1:
-    #     print( 'averaging data')
-    #     doy = ddoy
-    #     for j in np.arange(0, len(doy), av):
-    #         if j == 0:
-    #             av_doy  = doy[(j-1+int(av/2))]
-    #             status_ = status[(j-1+int(av/2))]
-    #             e150_   = np.nanmean(e150[j:(j+av-1)])
-    #             e300_   = np.nanmean(e300[j:(j+av-1)])
-    #             e1300_  = np.nanmean(e1300[j:(j+av-1)])
-    #             e3000_  = np.nanmean(e3000[j:(j+av-1)])
-    #             p4_     = np.nanmean(p4[j:(j+av-1)])
-    #             p8_     = np.nanmean(p8[j:(j+av-1)])
-    #             p25_    = np.nanmean(p25[j:(j+av-1)])
-    #             p41_    = np.nanmean(p41[j:(j+av-1)])
-    #             he4_    = np.nanmean(he4[j:(j+av-1)])
-    #             he8_    = np.nanmean(he8[j:(j+av-1)])
-    #             he25_   = np.nanmean(he25[j:(j+av-1)])
-    #             he41_   = np.nanmean(he41[j:(j+av-1)])
-    #             inte_   = np.nanmean(inte[j:(j+av-1)])
-    #         else:
-    #             av_doy  = np.row_stack((av_doy, doy[(j+int(av/2))]))
-    #             status_ = np.row_stack((status_, status[(j+int(av/2))]))
-    #             e150_   = np.row_stack((e150_, np.nanmean(e150[j:(j+av-1)])))
-    #             e300_   = np.row_stack((e300_, np.nanmean(e300[j:(j+av-1)])))
-    #             e1300_  = np.row_stack((e1300_, np.nanmean(e1300[j:(j+av-1)])))
-    #             e3000_  = np.row_stack((e3000_, np.nanmean(e3000[j:(j+av-1)])))
-    #             p4_     = np.row_stack((p4_, np.nanmean(p4[j:(j+av-1)])))
-    #             p8_     = np.row_stack((p8_, np.nanmean(p8[j:(j+av-1)])))
-    #             p25_    = np.row_stack((p25_, np.nanmean(p25[j:(j+av-1)])))
-    #             p41_    = np.row_stack((p41_, np.nanmean(p41[j:(j+av-1)])))
-    #             he4_    = np.row_stack((he4_, np.nanmean(he4[j:(j+av-1)])))
-    #             he8_    = np.row_stack((he8_, np.nanmean(he8[j:(j+av-1)])))
-    #             he25_   = np.row_stack((he25_, np.nanmean(he25[j:(j+av-1)])))
-    #             he41_   = np.row_stack((he41_, np.nanmean(he41[j:(j+av-1)])))
-    #             inte_   = np.row_stack((inte_, np.nanmean(inte[j:(j+av-1)])))
-
-    #         test=j+av-1
-    #         if test >= len(doy)-1-av:
-    #             break
-
-    #     ddoy = av_doy
-    #     status = status_
-    #     e150  = e150_
-    #     e300  = e300_
-    #     e1300 = e1300_
-    #     e3000 = e3000_
-    #     p4    = p4_
-    #     p8    = p8_
-    #     p25   = p25_
-    #     p41   = p41_
-    #     he4   = he4_
-    #     he8   = he8_
-    #     he25  = he25_
-    #     he41  = he41_
-    #     inte  = inte_
-
-    if (backsub[1]-backsub[0] > 0):
-        print('making background subtraction EPH rl2')
-        back_ind   = np.where((ddoy > backsub[0]) & (ddoy < backsub[1]))[0]
-        back_e150  = np.nanmean(e150[back_ind])
-        e150  = e150 - back_e150
-        back_e300  = np.nanmean(e300[back_ind])
-        e300  = e300 - back_e300
-        back_e1300  = np.nanmean(e1300[back_ind])
-        e1300  = e1300 - back_e1300
-        back_e3000  = np.nanmean(e3000[back_ind])
-        e3000  = e3000 - back_e3000
-        back_p4  = np.nanmean(p4[back_ind])
-        p4  = p4 - back_p4
-        back_p8  = np.nanmean(p8[back_ind])
-        p8  = p8 - back_p8
-        back_p25  = np.nanmean(p25[back_ind])
-        p25  = p25 - back_p25
-        back_p41  = np.nanmean(p41[back_ind])
-        p41  = p41 - back_p41
-        back_he4  = np.nanmean(he4[back_ind])
-        he4  = he4 - back_he4
-        back_he8  = np.nanmean(he8[back_ind])
-        he8  = he8 - back_he8
-        back_he25  = np.nanmean(he25[back_ind])
-        he25  = he25 - back_he25
-        back_he41  = np.nanmean(he41[back_ind])
-        he41  = he41 - back_he41
-        back_inte  = np.nanmean(inte[back_ind])
-        inte  = inte - back_inte
-
-    date = doy2dt(year, ddoy)
-
-    # eph_dic = {'doy':ddoy,
-    #             'date':date,
-    #             'e150':[e150, '0.25-0.7 MeV'],
-    #             'e300':[e300, '0.67-3.0 MeV'],
-    #             'e1300':[e1300, cs_e1300],
-    #             'e3000':[e3000, '4.80 - 10.4'],
-    #             'p4':[p4, '4.3-7.8'],
-    #             'p8':[p8, '7.8-25'],
-    #             'p25':[p25, cs_p25],
-    #             'p41':[p41, '41-53 MeV'],
-    #             'he4': [he4, '4.3 - 7.8 MeV/N'],
-    #             'he8': [he8, '7.8 - 25.0 MeV/N'],
-    #             'he25': [he25, cs_he25],
-    #             'he41': [he41, '40.9 - 53.0 MeV/N'],
-    #             'inte':[inte, '>25 MeV integral'],
-    #             'status':fmodes,
-    #             'ringoff': ringoff}
-
-    eph_dic = {'doy': ddoy,
-               'date': date,
-               'e150': e150,
-               'e300': e300,
-               'e1300': e1300,
-               'e3000': e3000,
-               'p4': p4,
-               'p8': p8,
-               'p25': p25,
-               'p41': p41,
-               'he4': he4,
-               'he8': he8,
-               'he25': he25,
-               'he41': he41,
-               'inte': inte,
-               'status': fmodes,
-               'ringoff': ringoff}
-    df = pd.DataFrame.from_dict(eph_dic)
-    df.index = df.date
-
-    meta = {'e150': '0.25-0.7 MeV',
-            'e300': '0.67-3.0 MeV',
-            'e1300': cs_e1300,
-            'e3000': '4.80 - 10.4',
-            'p4': '4.3-7.8',
-            'p8': '7.8-25',
-            'p25': cs_p25,
-            'p41': '41-53 MeV',
-            'he4': '4.3 - 7.8 MeV/N',
-            'he8': '7.8 - 25.0 MeV/N',
-            'he25': cs_he25,
-            'he41': '40.9 - 53.0 MeV/N',
-            'inte': '>25 MeV integral'}
-
-    return df, meta
