@@ -5,10 +5,12 @@ Python data loader for SOHO charged particle instruments. At the moment provides
 
 -   ``'SOHO_CELIAS-PM_30S'``: SOHO CELIAS-PM 30 second data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-PM_30S>`_)
 -   ``'SOHO_CELIAS-SEM_15S'``: SOHO CELIAS-SEM 15 second data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-SEM_15S>`_)    
+-   ``'SOHO_COSTEP-EPHIN_L2-1MIN'``: SOHO COSTEP-EPHIN Level2 intensity 1 minute data (`Info <https://www.ieap.uni-kiel.de/et/ag-heber/costep/data.php>`_) ***
 -   ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``: SOHO COSTEP-EPHIN Level3 intensity 1 minute data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_COSTEP-EPHIN_L3I-1MIN>`_)
 -   ``'SOHO_ERNE-LED_L2-1MIN'``: SOHO ERNE-LED Level2 1 minute data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_ERNE-LED_L2-1MIN>`_)
 -   ``'SOHO_ERNE-HED_L2-1MIN'``: SOHO ERNE-HED Level2 1 minute data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_ERNE-HED_L2-1MIN>`_)
 
+*** SOHO COSTEP-EPHIN Level2 intensity 1 minute data is directly obtained through ASCII files from the `server of the instrument team <http://ulysses.physik.uni-kiel.de/costep/level2/>`_.
 
 Disclaimer
 ----------
@@ -50,7 +52,7 @@ returns Pandas dataframe(s) of the measurements.
 Input
 ~~~~~
 
--  ``dataset``: ``'SOHO_CELIAS-PM_30S'``, ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``, ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``, ``'SOHO_ERNE-LED_L2-1MIN'``, or ``'SOHO_ERNE-HED_L2-1MIN'``. See above for explanation.
+-  ``dataset``: ``'SOHO_CELIAS-PM_30S'``, ``'SOHO_CELIAS-SEM_15S'``, ``'SOHO_COSTEP-EPHIN_L2-1MIN'``, ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``, ``'SOHO_ERNE-LED_L2-1MIN'``, or ``'SOHO_ERNE-HED_L2-1MIN'``. See above for explanation.
 -  ``startdate``, ``enddate``: datetime object or "standard" datetime string
 -  ``path``: String, optional. Local path for storing downloaded data, e.g. ``path='data/wind/3dp/'``. By default ``None``. Default setting saves data according to `sunpy's Fido standards <https://docs.sunpy.org/en/stable/guide/acquiring_data/fido.html#downloading-data>`_.
 -  ``resample``: Pandas frequency (e.g., ``'1min'`` or ``'1h'``), or ``None``, optional. Frequency to which the original data is resamepled. By default ``None``.
@@ -63,10 +65,16 @@ Return
 -  Pandas dataframe and dictionary of metadata (e.g., energy channels). See info links above for the different datasets for a description of the dataframe columns.
 
 
+Caveats
+-------
+From the **SOHO COSTEP-EPHIN Level2 intensity 1 minute data** (``'SOHO_COSTEP-EPHIN_L2-1MIN'``), only electron data is returned at the moment. The proton and Helium measurements are not provided, see https://github.com/jgieseler/soho-loader/issues/3 for more details.
+
+
 Data folder structure
 ---------------------
 
-If no `path` argument is provided, all data files are automatically saved in a SunPy subfolder of the current user home directory.
+- COSTEP-EPHIN Level2: All data files are automatically saved in a ``data`` subfolder in the current working directory if ``path`` is not defined.
+- All other instruments: All data files are automatically saved in a ``sunpy`` subfolder of the current user home directory if ``path`` is not defined.
 
 
 Combine intensitiy for multiple energy channels (ERNE only)
