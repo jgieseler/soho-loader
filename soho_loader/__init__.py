@@ -92,9 +92,9 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
     ----------
     dataset : {str}
         Name of SOHO dataset:
-
-        - 'SOHO_COSTEP-EPHIN_L2': SOHO COSTEP-EPHIN Level2 1 minute data
-
+        - 'SOHO_COSTEP-EPHIN_L2-1MIN': SOHO COSTEP-EPHIN Level2 1 minute data
+            https://www.ieap.uni-kiel.de/et/ag-heber/costep/data.php
+            http://ulysses.physik.uni-kiel.de/costep/level2/rl2/
         - 'SOHO_COSTEP-EPHIN_L3I-1MIN': SOHO COSTEP-EPHIN Level3 intensity 1 minute data
             https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_COSTEP-EPHIN_L3I-1MIN
         - 'SOHO_CELIAS-PM_30S': SOHO CELIAS-PM 30 second data
@@ -127,58 +127,61 @@ def soho_load(dataset, startdate, enddate, path=None, resample=None, pos_timesta
     if not (pos_timestamp=='center' or pos_timestamp=='start' or pos_timestamp is None):
         raise ValueError(f'"pos_timestamp" must be either None, "center", or "start"!')
 
-    trange = a.Time(startdate, enddate)
-    cda_dataset = a.cdaweb.Dataset(dataset)
-    try:
-        result = Fido.search(trange, cda_dataset)
-        filelist = [i[0].split('/')[-1] for i in result.show('URL')[0]]
-        filelist.sort()
-        if path is None:
-            filelist = [sunpy.config.get('downloads', 'download_dir') + os.sep + file for file in filelist]
-        elif type(path) is str:
-            filelist = [path + os.sep + f for f in filelist]
-        downloaded_files = filelist
+    if dataset == 'SOHO_COSTEP-EPHIN_L2-1MIN':
+        df, metadata = soho_ephin_loader(startdate, enddate, resample=resample, path=path, all_columns=False, pos_timestamp=pos_timestamp)
+    else:
+        trange = a.Time(startdate, enddate)
+        cda_dataset = a.cdaweb.Dataset(dataset)
+        try:
+            result = Fido.search(trange, cda_dataset)
+            filelist = [i[0].split('/')[-1] for i in result.show('URL')[0]]
+            filelist.sort()
+            if path is None:
+                filelist = [sunpy.config.get('downloads', 'download_dir') + os.sep + file for file in filelist]
+            elif type(path) is str:
+                filelist = [path + os.sep + f for f in filelist]
+            downloaded_files = filelist
 
-        for i, f in enumerate(filelist):
-            if os.path.exists(f) and os.path.getsize(f) == 0:
-                os.remove(f)
-            if not os.path.exists(f):
-                downloaded_file = Fido.fetch(result[0][i], path=path, max_conn=max_conn)
+            for i, f in enumerate(filelist):
+                if os.path.exists(f) and os.path.getsize(f) == 0:
+                    os.remove(f)
+                if not os.path.exists(f):
+                    downloaded_file = Fido.fetch(result[0][i], path=path, max_conn=max_conn)
 
-        # downloaded_files = Fido.fetch(result, path=path, max_conn=max_conn)  # use Fido.fetch(result, path='/ThisIs/MyPath/to/Data/{file}') to use a specific local folder for saving data files
-        # downloaded_files.sort()
-        data = TimeSeries(downloaded_files, concatenate=True)
-        df = data.to_dataframe()
+            # downloaded_files = Fido.fetch(result, path=path, max_conn=max_conn)  # use Fido.fetch(result, path='/ThisIs/MyPath/to/Data/{file}') to use a specific local folder for saving data files
+            # downloaded_files.sort()
+            data = TimeSeries(downloaded_files, concatenate=True)
+            df = data.to_dataframe()
 
-        metadata = _get_metadata(dataset, downloaded_files[0])
+            metadata = _get_metadata(dataset, downloaded_files[0])
 
-        # remove this (i.e. following lines) when sunpy's read_cdf is updated,
-        # and FILLVAL will be replaced directly, see
-        # https://github.com/sunpy/sunpy/issues/5908
-        df = df.replace(-1e+31, np.nan)  # for all fluxes
-        df = df.replace(-2147483648, np.nan)  # for ERNE count rates
+            # remove this (i.e. following lines) when sunpy's read_cdf is updated,
+            # and FILLVAL will be replaced directly, see
+            # https://github.com/sunpy/sunpy/issues/5908
+            df = df.replace(-1e+31, np.nan)  # for all fluxes
+            df = df.replace(-2147483648, np.nan)  # for ERNE count rates
 
-        # careful!
-        # adjusting the position of the timestamp manually.
-        # requires knowledge of the original time resolution and timestamp position!
-        if pos_timestamp == 'center':
-            if (dataset.upper() == 'SOHO_ERNE-HED_L2-1MIN' or
-                    dataset.upper() == 'SOHO_ERNE-LED_L2-1MIN' or
-                    dataset.upper() == 'SOHO_COSTEP-EPHIN_L3I-1MIN'):
-                df.index = df.index+pd.Timedelta('30s')
-            if dataset.upper() == 'SOHO_CELIAS-PM_30S':
-                df.index = df.index+pd.Timedelta('15s')
-        if pos_timestamp == 'start':
-            if dataset.upper() == 'SOHO_CELIAS-SEM_15S':
-                df.index = df.index-pd.Timedelta('7.5s')
+            # careful!
+            # adjusting the position of the timestamp manually.
+            # requires knowledge of the original time resolution and timestamp position!
+            if pos_timestamp == 'center':
+                if (dataset.upper() == 'SOHO_ERNE-HED_L2-1MIN' or
+                        dataset.upper() == 'SOHO_ERNE-LED_L2-1MIN' or
+                        dataset.upper() == 'SOHO_COSTEP-EPHIN_L3I-1MIN'):
+                    df.index = df.index+pd.Timedelta('30s')
+                if dataset.upper() == 'SOHO_CELIAS-PM_30S':
+                    df.index = df.index+pd.Timedelta('15s')
+            if pos_timestamp == 'start':
+                if dataset.upper() == 'SOHO_CELIAS-SEM_15S':
+                    df.index = df.index-pd.Timedelta('7.5s')
 
-        if isinstance(resample, str):
-            df = resample_df(df, resample, pos_timestamp=pos_timestamp)
-    except RuntimeError:
-        print(f'Unable to obtain "{dataset}" data!')
-        downloaded_files = []
-        df = []
-        metadata = []
+            if isinstance(resample, str):
+                df = resample_df(df, resample, pos_timestamp=pos_timestamp)
+        except RuntimeError:
+            print(f'Unable to obtain "{dataset}" data!')
+            downloaded_files = []
+            df = []
+            metadata = []
     return df, metadata
 
 
