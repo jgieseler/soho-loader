@@ -394,10 +394,12 @@ def soho_ephin_loader(startdate, enddate, resample=None, path=None, all_columns=
             warnings.warn('Careful: EPHIN ring off!')
 
         # failure mode D since 4 Oct 2017:
-        if enddate >= dt.date(2017, 10, 4):
+        # dates[-1].date() is enddate, used to catch cases when enddate is a string
+        if dates[-1].date() >= dt.date(2017, 10, 4):
             cs_e300 = 'deactivated bc. of failure mode D'
             cs_e1300 = "0.67 - 10.4 MeV"
-            if startdate <= dt.date(2017, 10, 4):
+            # dates[0].date() is startdate, used to catch cases when startdate is a string
+            if dates[0].date() <= dt.date(2017, 10, 4):
                 warnings.warn('EPHIN instrument status (i.e., electron energy channels) changed during selected period (on Oct 4, 2017)!')
 
         # careful!
