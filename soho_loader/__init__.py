@@ -342,7 +342,7 @@ def soho_ephin_loader(startdate, enddate, resample=None, path=None, all_columns=
 
         # Proton and helium measurements need to be corrected for effects determined post-launch,
         # cf. chapter 2.3 of https://www.ieap.uni-kiel.de/et/ag-heber/costep/materials/L2_spec_ephin.pdf
-        # Until this correction has been implemented here, this data products are set to -9e9.
+        # Until this correction has been implemented here, these data products are set to -9e9.
         # Setting use_uncorrected_data_on_own_risk=True skips this replacement, so that the uncorrected
         # data can be obtained at own risk!
         if use_uncorrected_data_on_own_risk:
