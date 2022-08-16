@@ -5,12 +5,12 @@ Python data loader for SOHO charged particle instruments. At the moment provides
 
 -   ``'SOHO_CELIAS-PM_30S'``: SOHO CELIAS-PM 30 second data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-PM_30S>`_)
 -   ``'SOHO_CELIAS-SEM_15S'``: SOHO CELIAS-SEM 15 second data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_CELIAS-SEM_15S>`_)    
--   ``'SOHO_COSTEP-EPHIN_L2-1MIN'``: SOHO COSTEP-EPHIN Level2 intensity 1 minute data (`Info <https://www.ieap.uni-kiel.de/et/ag-heber/costep/data.php>`_) ***
+-   ``'SOHO_COSTEP-EPHIN_L2-1MIN'``: SOHO COSTEP-EPHIN Level2 intensity 1 minute data (`Info <https://www.ieap.uni-kiel.de/et/ag-heber/costep/data.php>`_) [1]_
 -   ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``: SOHO COSTEP-EPHIN Level3 intensity 1 minute data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_COSTEP-EPHIN_L3I-1MIN>`_)
 -   ``'SOHO_ERNE-LED_L2-1MIN'``: SOHO ERNE-LED Level2 1 minute data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_ERNE-LED_L2-1MIN>`_)
 -   ``'SOHO_ERNE-HED_L2-1MIN'``: SOHO ERNE-HED Level2 1 minute data (`Info <https://cdaweb.gsfc.nasa.gov/misc/NotesS.html#SOHO_ERNE-HED_L2-1MIN>`_)
 
-*** SOHO COSTEP-EPHIN Level2 intensity 1 minute data is directly obtained through ASCII files from the `server of the instrument team <http://ulysses.physik.uni-kiel.de/costep/level2/>`_.
+.. [1] SOHO COSTEP-EPHIN Level2 intensity 1 minute data is directly obtained through ASCII files from the `server of the instrument team <http://ulysses.physik.uni-kiel.de/costep/level2/>`_, not via SunPy/CDAWeb.
 
 Disclaimer
 ----------
