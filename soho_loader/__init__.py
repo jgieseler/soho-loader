@@ -258,7 +258,7 @@ def soho_ephin_download(date, path=None):
     return downloaded_file
 
 
-def soho_ephin_loader(startdate, enddate, resample=None, path=None, all_columns=False, pos_timestamp=None):
+def soho_ephin_loader(startdate, enddate, resample=None, path=None, all_columns=False, pos_timestamp=None, use_uncorrected_data_on_own_risk=False):
     """Loads SOHO/EPHIN data and returns it as Pandas dataframe together with a dictionary providing the energy ranges per channel
 
     Parameters
@@ -330,7 +330,32 @@ def soho_ephin_loader(startdate, enddate, resample=None, path=None, all_columns=
         if not all_columns:
             df = df.drop(columns=['Year', 'DOY', 'MS', 'S/C Epoch',
                                   'Status Word part 1', 'Status Word part 2',
+                                  'P4 GM', 'P4 GR', 'P4 S',
+                                  'P8 GM', 'P8 GR', 'P8 S',
+                                  'P25 GM', 'P25 GR', 'P25 S',
+                                  'P41 GM', 'P41 GR', 'P41 S',
+                                  'H4 GM', 'H4 GR', 'H4 S1', 'H4 S23',
+                                  'H8 GM', 'H8 GR', 'H8 S1', 'H8 S23',
+                                  'H25 GM', 'H25 GR', 'H25 S1', 'H25 S23',
+                                  'H41 GM', 'H41 GR', 'H41 S1', 'H41 S23',
                                   'Spare 1', 'Spare 2', 'Spare 3'])
+
+        # Proton and helium measurements need to be corrected for effects determined post-launch,
+        # cf. chapter 2.3 of https://www.ieap.uni-kiel.de/et/ag-heber/costep/materials/L2_spec_ephin.pdf
+        # Until this correction has been implemented here, this data products are set to -9e9.
+        # Setting use_uncorrected_data_on_own_risk=True skips this replacement, so that the uncorrected
+        # data can be obtained at own risk!
+        if use_uncorrected_data_on_own_risk:
+            warnings.warn("Proton and helium data is still uncorrected! Know what you're doing and use at own risk!")
+        else:
+            df.P4 = -9e9
+            df.P8 = -9e9
+            df.P25 = -9e9
+            df.P41 = -9e9
+            df.H4 = -9e9
+            df.H8 = -9e9
+            df.H25 = -9e9
+            df.H41 = -9e9
 
         # replace bad data with np.nan:
         # there shouldn't be bad data in rl2 files!
