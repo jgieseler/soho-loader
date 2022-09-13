@@ -286,7 +286,7 @@ def soho_ephin_loader(startdate, enddate, resample=None, path=None, all_columns=
     """
 
     if not path:
-        path = os.getcwd()+os.sep+'data'
+        path = sunpy.config.get('downloads', 'download_dir') + os.sep
 
     # create list of files to load:
     dates = pd.date_range(start=startdate, end=enddate, freq='D')
