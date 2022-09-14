@@ -54,7 +54,7 @@ Input
 
 -  ``dataset``: ``'SOHO_CELIAS-PM_30S'``, ``'SOHO_CELIAS-SEM_15S'``, ``'SOHO_COSTEP-EPHIN_L2-1MIN'``, ``'SOHO_COSTEP-EPHIN_L3I-1MIN'``, ``'SOHO_ERNE-LED_L2-1MIN'``, or ``'SOHO_ERNE-HED_L2-1MIN'``. See above for explanation.
 -  ``startdate``, ``enddate``: datetime object or "standard" datetime string
--  ``path``: String, optional. Local path for storing downloaded data, e.g. ``path='data/soho/'``. By default ``None``. Default setting saves data according to `sunpy's Fido standards <https://docs.sunpy.org/en/stable/guide/acquiring_data/fido.html#downloading-data>`_.
+-  ``path``: String, optional. Local path for storing downloaded data, e.g. ``path='data/soho/'``. By default ``None``. Default setting saves data according to `sunpy's Fido standards <https://docs.sunpy.org/en/stable/guide/acquiring_data/fido.html#downloading-data>`_. The default setting can be changed according to the corresponding `sunpy documentation <https://docs.sunpy.org/en/stable/guide/customization.html>`_, where the setting that needs to be changed is named ``download_dir`` (e.g., one could set it to a shared directory on a multi-user system).
 -  ``resample``: Pandas frequency (e.g., ``'1min'`` or ``'1h'``), or ``None``, optional. Frequency to which the original data is resamepled. By default ``None``.
 -  ``pos_timestamp``: String, optional. Change the position of the timestamp: ``'center'`` or ``'start'`` of the accumulation interval, by default ``None``.
 -  ``max_conn``: Integer, optional. The number of parallel download slots used by ``Fido.fetch``, by default ``5``.
