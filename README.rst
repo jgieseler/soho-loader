@@ -1,3 +1,6 @@
+This package is not maintained any more! Please use https://github.com/serpentine-h2020/SEPpy instead!
+======================================================================================================
+
 soho-loader
 ===============
 
@@ -16,19 +19,6 @@ Disclaimer
 ----------
 This software is provided "as is", with no guarantee. It is no official data source, and not officially endorsed by the corresponding instrument teams. Please always refer to the instrument descriptions before using the data!
 
-
-Installation
-------------
-
-soho_loader requires python >= 3.6 and SunPy >= 3.1.3
-
-It can be installed from this repository using pip:
-
-.. code:: bash
-
-    pip install git+https://github.com/jgieseler/soho-loader
-
-**Note:** Windows users might `need to install git <https://github.com/git-guides/install-git>`_ for this to work!
 
 Usage
 -----
